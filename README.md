@@ -100,7 +100,7 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo LICENSE para más 
  
 Contacto
 Si tienes preguntas, sugerencias o deseas reportar un problema, por favor contacta a:
+
 •	Nombre: David San Martin
 •	GitHub: https://github.com/davidsanma2001
 
-![image](https://github.com/user-attachments/assets/01d98b8d-f1fa-42bc-ac1a-eb046a0333bc)
