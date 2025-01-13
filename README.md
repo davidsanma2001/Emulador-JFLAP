@@ -1,4 +1,5 @@
 Simulador de Autómatas y Máquinas Teóricas
+
 Este proyecto implementa la simulación de varios modelos teóricos de computación, incluyendo autómatas finitos deterministas (DFA), autómatas finitos no deterministas (NFA), autómatas con pila (PDA), y máquinas de Turing. Está diseñado para ser una herramienta educativa y práctica, que permite explorar la teoría de autómatas y lenguajes formales a través de pruebas y simulaciones interactivas.
  
 Características principales
