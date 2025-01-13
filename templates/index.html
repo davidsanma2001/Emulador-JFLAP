@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emulador de JFLAP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Bienvenido al Emulador de JFLAP</h1>
+    </header>
+    <main>
+        <section class="description">
+            <h2>Descripción</h2>
+            <p>Esta aplicación emula las funcionalidades de JFLAP, permitiendo a los usuarios crear y simular autómatas.</p>
+        </section>
+        <section class="options">
+            <h2>Opciones</h2>
+            <ul>
+                <li>
+                    <a href="/simulate_dfa">Simular Autómata Finito</a>
+                    <span> - Crea y simula autómatas finitos.</span>
+                </li>
+                <li>
+                    <a href="/simulate_nfa">Simular Autómata Finito No Determinista</a>
+                    <span> - Crea y simula autómatas finitos no determinista.</span>
+                </li>
+                <li>
+                    <a href="/simulate_turing">Simular Máquina de Turing</a>
+                    <span> - Simula el funcionamiento de una máquina de Turing.</span>
+                </li>
+                <li>
+                    <a href="/nfa_to_dfa">Convertir NFA a DFA</a>
+                    <span> - Conversión de un autómata finito no determinista a uno determinista.</span>
+                </li>
+                <li>
+                    <a href="/simulate_pda_empty_stack">Simular PDA (Vaciado de Pila)</a>
+                    <span> - Simula autómatas con pila que reconocen por vaciado de pila.</span>
+                </li>
+                <li>
+                    <a href="/simulate_pda_final_state">Simular PDA (Estado Final)</a>
+                    <span> - Simula autómatas con pila que reconocen por estado final.</span>
+                </li>
+                <li>
+                    <a href="/load">Cargar Autómata</a>
+                    <span> - Carga un autómata previamente guardado. <strong>En desarrollo...</strong></span>
+                </li>
+                <li>
+                    <a href="/about">Acerca de</a>
+                    <span> - Información sobre la aplicación. Utilidades y funcionalidad.</span>
+                </li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 David San Martín</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerca de - Simulador de Autómatas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Acerca de la Aplicación</h1>
+            <a href="/" class="home-button">Volver a Inicio</a>
+        </div>
+    </header>
+    <main>
+        <section>
+            <h2>Descripción de la Aplicación</h2>
+            <p>Esta aplicación es un simulador de autómatas que permite a los usuarios interactuar con diferentes tipos de autómatas, incluyendo autómatas finitos deterministas (DFA), autómatas finitos no deterministas (NFA) y máquinas de Turing. La aplicación está diseñada para facilitar el aprendizaje y la comprensión de los conceptos fundamentales de la teoría de autómatas y lenguajes formales.</p>
+            <p><strong>Última actualización:</strong> Octubre de 2024</p>
+        </section>
+
+        <section>
+            <h2>Funcionamiento de la API</h2>
+            <h3>1. Autómata Finito Determinista (DFA)</h3>
+            <p>Un DFA es un modelo matemático que consiste en un conjunto finito de estados, un alfabeto, un estado inicial y un conjunto de estados de aceptación. A diferencia de los NFA, un DFA tiene exactamente una transición para cada símbolo del alfabeto desde cada estado. Esto significa que, dado un estado y un símbolo de entrada, el siguiente estado está completamente determinado.</p>
+
+            <h3>2. Autómata Finito No Determinista (NFA)</h3>
+            <p>Un NFA es similar a un DFA, pero permite múltiples transiciones para un mismo símbolo desde un estado dado, incluyendo transiciones epsilon (sin consumir un símbolo). Esto significa que un NFA puede tener múltiples caminos posibles para procesar una cadena de entrada, lo que lo hace más flexible pero también más complejo en términos de simulación.</p>
+
+            <h3>3. Máquina de Turing</h3>
+            <p>Una máquina de Turing es un modelo computacional que consiste en una cinta infinita, un cabezal de lectura/escritura y un conjunto de estados. La máquina de Turing puede leer y escribir símbolos en la cinta y moverse a la izquierda o a la derecha. Es un modelo más poderoso que los autómatas finitos y puede simular cualquier algoritmo computacional.</p>
+
+            <h3>4. Conversor de NFA a DFA</h3>
+            <p>El conversor de NFA a DFA permite a los usuarios ingresar un NFA y obtener su equivalente DFA. Este proceso implica la determinización del NFA, donde se crean nuevos estados en el DFA que representan conjuntos de estados del NFA. Esto es útil porque los DFA son más fáciles de implementar y analizar en comparación con los NFA.</p>
+        
+            <h3>5. PDA con Aceptación por Estado Final</h4>
+            <p>En este tipo de PDA, una cadena de entrada es aceptada si, al terminar de procesar la cadena, el PDA se encuentra en un estado de aceptación. Este modelo es útil para simular lenguajes en los que la validación depende de alcanzar un estado final específico, independientemente del contenido restante en la pila.</p>
+
+            <h3>6. PDA con Aceptación por Pila Vacía</h4>
+            <p>En este tipo de PDA, una cadena de entrada es aceptada si, al terminar de procesar la cadena, la pila está completamente vacía. Este enfoque se utiliza para lenguajes en los que la estructura del lenguaje requiere que todos los elementos apilados sean procesados y eliminados al final del cálculo.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 David San Martín</p>
+    </footer>
+</body>
+</html>

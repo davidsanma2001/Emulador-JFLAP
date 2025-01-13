@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simular NFA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Simular Autómata No Determinista (NFA)</h1>
+            <a href="/" class="home-button">Volver a Inicio</a>
+        </div>
+    </header>
+    <main>
+        <form id="nfaForm">
+            <label for="states">Estados (separados por comas):</label><br>
+            <span id="states-error" class="error-message"></span>
+            <input type="text" id="states" name="states"><br><br>
+
+            <label for="alphabet">Alfabeto (separados por comas):</label><br>
+            <span id="alphabet-error" class="error-message"></span>
+            <input type="text" id="alphabet" name="alphabet"><br><br>
+
+            <label for="start_state">Estado Inicial:</label><br>
+            <span id="start_state-error" class="error-message"></span>
+            <input type="text" id="start_state" name="start_state"><br><br>
+
+            <label for="accept_states">Estados de Aceptación (separados por comas):</label><br>
+            <input type="text" id="accept_states" name="accept_states"><br><br>
+
+            <div id="transitions-container">
+                <div id="mensaje-error" style="color: red; display: none;"></div>
+                <ul id="transitions-list">
+                </ul>
+                <button id="add-transition">Añadir transición</button>
+            </div> 
+
+            <label for="input_string">Cadena de Entrada:</label><br>
+            <span id="input_string-error" class="error-message"></span>
+            <input type="text" id="input_string" name="input_string"><br><br>
+
+            <button type="submit">Simular</button>
+        </form>
+
+        <div id="result-container">
+            <div id="result" class="result-box"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 David San Martín</p>
+    </footer>
+
+    <script>
+        document.getElementById('add-transition').addEventListener('click', function (event) {
+            event.preventDefault();
+    
+            const transitionTemplate = `
+                <li>
+                    <label for="current_state"> Estado actual: </label>
+                    <input type="text" name="current_state"><br>
+                    <label for="read_code"> Símbolo de lectura: </label>
+                    <input type="text" name="read_code"><br>
+                    <label for="new_state"> Nuevo estado o estados (separados por comas): </label>
+                    <input type="text" name="new_state"><br>
+                    <button class="remove-transition">Borrar transición</button>
+                </li>
+            `;
+    
+            const transitionsList = document.getElementById('transitions-list');
+            transitionsList.insertAdjacentHTML('beforeend', transitionTemplate);
+
+            verificarTransiciones();
+        });
+
+        // Función para eliminar una transición específica
+        document.getElementById('transitions-list').addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-transition')) {
+                event.preventDefault();
+                const transitionItem = event.target.closest('li');
+                if (transitionItem) {
+                    transitionItem.remove();
+                }
+            }
+            verificarTransiciones();
+        });
+
+        // Función para verificar si alguna transición está incompleta
+        function verificarTransiciones() {
+            const transitionsList = document.getElementById('transitions-list');
+            const mensajeError = document.getElementById('mensaje-error');
+            let hayTransicionesIncompletas = false;
+
+            // Iteramos sobre todas las transiciones
+            Array.prototype.forEach.call(transitionsList.children, function (transition) {
+                const currentStateInput = transition.querySelector('input[name="current_state"]');
+                const readCodeInput = transition.querySelector('input[name="read_code"]');
+                const newStateInput = transition.querySelector('input[name="new_state"]');
+
+                // Si alguno de los campos está vacío, marcar como incompleta
+                if (!currentStateInput.value.trim() || !readCodeInput.value.trim() || !newStateInput.value.trim()) {
+                    hayTransicionesIncompletas = true;
+                }
+            });
+
+            // Mostrar u ocultar el mensaje de error
+            if (hayTransicionesIncompletas) {
+                mensajeError.textContent = 'Hay transiciones incompletas. Por favor, complétalas o elimínalas.';
+                mensajeError.style.display = 'block';
+            } else {
+                mensajeError.style.display = 'none';
+            }
+        }
+        // Añadir evento a cada campo de entrada para verificar transiciones cuando cambian
+        document.getElementById('transitions-list').addEventListener('input', function(event) {
+            // Verifica las transiciones cada vez que un valor cambie
+            if (event.target.tagName === 'INPUT') {
+                verificarTransiciones();
+            }
+        });
+
+        document.getElementById('nfaForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const camposObligatorios = ['states', 'alphabet', 'start_state', 'input_string'];
+            const campos = {};
+            const mensajeError = document.getElementById('mensaje-error');
+            
+            // Limpiar mensajes de error previos
+            mensajeError.style.display = 'none';
+            mensajeError.textContent = '';
+
+            camposObligatorios.forEach(campo => {
+                campos[campo] = document.getElementById(campo).value.trim();
+                const errorSpan = document.getElementById(`${campo}-error`);
+                if (campos[campo] === '') {
+                    errorSpan.textContent = 'Este campo es obligatorio';
+                    errorSpan.style.display = 'block';
+                } else {
+                    errorSpan.style.display = 'none';
+                }
+            });
+        
+            if (Object.values(campos).some(campo => campo === '')) {
+                return;
+            }
+
+            const transitionsList = document.getElementById('transitions-list');
+            const transitions = {};
+
+            Array.prototype.forEach.call(transitionsList.children, function (transition) {
+                const currentStateInput = transition.querySelector('input[name="current_state"]');
+                const readCodeInput = transition.querySelector('input[name="read_code"]');
+                const newStateInput = transition.querySelector('input[name="new_state"]');
+
+                if (currentStateInput && readCodeInput && newStateInput) {
+                    const currentState = currentStateInput.value.trim();
+                    const readCode = readCodeInput.value.trim();
+                    const newStates = newStateInput.value.trim().split(',').map(state => state.trim());
+
+                    const transitionKey = `${currentState},${readCode}`;
+
+                    if (!transitions[transitionKey]) {
+                        transitions[transitionKey] = [];
+                    }
+
+                    transitions[transitionKey] = newStates.map(state => ({ new_state: state }));
+                }
+            });
+
+            const data = {
+                states: campos.states.split(',').map(state => state.trim()),
+                alphabet: campos.alphabet.split(',').map(symbol => symbol.trim()),
+                transitions: transitions, 
+                start_state: campos.start_state,
+                accept_states: document.getElementById('accept_states').value.split(',').map(state => state.trim()),
+                input_string: campos.input_string
+            };
+
+            fetch('/simulate_nfa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById('result').innerHTML = `<p>Estados finales: ${result.final_states.join(', ')}<br>Resultado: ${result.result}</p>`;
+                document.getElementById('result-container').style.display = 'block';
+                document.getElementById('result-container').style.visibility = 'visible';
+                document.getElementById('result-container').style.opacity = '1';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

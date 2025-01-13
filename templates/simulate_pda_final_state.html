@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simular PDA (Estado Final)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Simular PDA (Reconocedor por Estado Final)</h1>
+            <a href="/" class="home-button">Volver a Inicio</a>
+        </div>
+    </header>
+    <main>
+        <form id="pdaForm">
+            <label for="states">Estados (separados por comas):</label><br>
+            <span id="states-error" class="error-message"></span>
+            <input type="text" id="states" name="states"><br><br>
+        
+            <label for="alphabet">Alfabeto de entrada (separados por comas):</label><br>
+            <span id="alphabet-error" class="error-message"></span>
+            <input type="text" id="alphabet" name="alphabet"><br><br>
+
+            <label for="stack_alphabet">Alfabeto de la pila (separados por comas):</label><br>
+            <span id="stack_alphabet-error" class="error-message"></span>
+            <input type="text" id="stack_alphabet" name="stack_alphabet"><br><br>
+        
+            <label for="start_state">Estado Inicial:</label><br>
+            <span id="start_state-error" class="error-message"></span>
+            <input type="text" id="start_state" name="start_state"><br><br>
+        
+            <label for="accept_states">Estados de Aceptación (separados por comas):</label><br>
+            <span id="accept_states-error" class="error-message"></span>
+            <input type="text" id="accept_states" name="accept_states"><br><br>
+        
+            <div id="transitions-container">
+                <h2>Transiciones</h2>
+                <div id="mensaje-error" style="color: red; display: none;"></div>
+                <ul id="transitions-list"></ul>
+                <button id="add-transition">Añadir transición</button>
+            </div>  
+        
+            <label for="input_string">Cadena de Entrada:</label><br>
+            <span id="input_string-error" class="error-message"></span>
+            <input type="text" id="input_string" name="input_string"><br><br>
+        
+            <button type="submit">Simular</button>
+        </form>
+
+        <div id="result-container">
+            <div id="result" class="result-box"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 David San Martín</p>
+    </footer>
+
+    <script>
+        document.getElementById('add-transition').addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const transitionTemplate = `
+                <li>
+                    <label for="current_state">Estado actual: </label>
+                    <input type="text" name="current_state"><br>
+                    <label for="read_code">Símbolo de lectura: </label>
+                    <input type="text" name="read_code"><br>
+                    <label for="action">Acción (push/pop): </label>
+                    <input type="text" name="action"><br>
+                    <label for="new_state">Nuevo estado: </label>
+                    <input type="text" name="new_state"><br>
+                    <button class="remove-transition">Borrar transición</button>
+                </li>
+            `;
+
+            const transitionsList = document.getElementById('transitions-list');
+            transitionsList.insertAdjacentHTML('beforeend', transitionTemplate);
+
+            verificarTransiciones();       
+        });
+
+        document.getElementById('transitions-list').addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-transition')) {
+                event.preventDefault();
+                const transitionItem = event.target.closest('li');
+                if (transitionItem) {
+                    transitionItem.remove();
+                }
+            }
+            verificarTransiciones();
+        });
+
+        function verificarTransiciones() {
+            const transitionsList = document.getElementById('transitions-list');
+            const mensajeError = document.getElementById('mensaje-error');
+            let hayTransicionesIncompletas = false;
+
+            Array.prototype.forEach.call(transitionsList.children, function (transition) {
+                const currentStateInput = transition.querySelector('input[name="current_state"]');
+                const readCodeInput = transition.querySelector('input[name="read_code"]');
+                const newStateInput = transition.querySelector('input[name="new_state"]');
+
+                if (!currentStateInput.value.trim() || !readCodeInput.value.trim() || !newStateInput.value.trim()) {
+                    hayTransicionesIncompletas = true;
+                }
+            });
+
+            if (hayTransicionesIncompletas) {
+                mensajeError.textContent = 'Hay transiciones incompletas. Por favor, complétalas o elimínalas.';
+                mensajeError.style.display = 'block';
+            } else {
+                mensajeError.style.display = 'none';
+            }
+        }
+
+        document.getElementById('transitions-list').addEventListener('input', function(event) {
+            // Verifica las transiciones cada vez que un valor cambie
+            if (event.target.tagName === 'INPUT') {
+                verificarTransiciones();
+            }
+        });
+
+        document.getElementById('pdaForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const camposObligatorios = ['states', 'alphabet', 'start_state', 'input_string', 'stack_alphabet', 'accept_states'];
+            const campos = {};
+            const mensajeError = document.getElementById('mensaje-error');
+
+            camposObligatorios.forEach(campo => {
+                campos[campo] = document.getElementById(campo).value.trim();
+                const errorSpan = document.getElementById(`${campo}-error`);
+                if (campos[campo] === '') {
+                    errorSpan.textContent = 'Este campo es obligatorio';
+                    errorSpan.style.display = 'block';
+                } else {
+                    errorSpan.style.display = 'none';
+                }
+            });
+        
+            if (Object.values(campos).some(campo => campo === '')) {
+                return;
+            }
+
+            const transitionsList = document.getElementById('transitions-list');
+            const transitions = {};
+
+            Array.prototype.forEach.call(transitionsList.children, function (transition) {
+                const currentStateInput = transition.querySelector('input[name="current_state"]');
+                const readCodeInput = transition.querySelector('input[name="read_code"]');
+                const newStateInput = transition.querySelector('input[name="new_state"]');
+                const actionInput = transition.querySelector('input[name="action"]');
+
+                if (currentStateInput && readCodeInput && newStateInput && actionInput) {
+                    const currentState = currentStateInput.value.trim();
+                    const readCode = readCodeInput.value.trim();
+                    const newState = newStateInput.value.trim();
+                    const action = actionInput.value.trim();
+
+                    const transitionKey = `${currentState},${readCode},${action}`;
+
+                    if (!transitions[transitionKey]) {
+                        transitions[transitionKey] = {};
+                    }
+
+                    transitions[transitionKey] = {
+                        new_state: newState
+                    };
+                }
+            });
+
+            const data = {
+                states: campos.states.split(',').map(state => state.trim()),
+                alphabet: campos.alphabet.split(',').map(symbol => symbol.trim()),
+                stack_alphabet: campos.stack_alphabet.split(',').map(symbol => symbol.trim()),
+                accept_states: campos.accept_states.split(',').map(state => state.trim()),
+                transitions: transitions,
+                start_state: campos.start_state,
+                input_string: campos.input_string
+            };
+
+            fetch('/simulate_pda_final_state', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Respuesta del servidor:', result);
+                document.getElementById('result').innerHTML = `<p>Estado final: ${result.final_state}<br>Resultado: ${result.result}<br>Pila final: [${result.final_stack.join(', ')}]</p>`;
+                document.getElementById('result-container').style.display = 'block';
+                document.getElementById('result-container').style.visibility = 'visible';
+                document.getElementById('result-container').style.opacity = '1';})
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
